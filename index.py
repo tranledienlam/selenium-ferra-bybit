@@ -14,6 +14,7 @@ class Setup:
         self.run()
 
     def run(self):
+        self.bybit_setup.run()
         self.node.new_tab(f'{PROJECT_URL}/?code=sPMyMrGVn')
 
 class Auto:
@@ -79,7 +80,9 @@ class Auto:
             return None
 
     def check_in(self):
-        if self.node.get_text(By.XPATH, '//span[contains(text(),"Check-in")]/..//span') == "Check-in":
+        text = self.node.get_text(By.XPATH, '(//span[contains(text(),"Check-in")]/..//span)')
+
+        if text == "Check-in":
             self.node.find_and_click(By.XPATH, '//span[contains(text(),"Check-in")]')
             self.node.find_and_click(By.XPATH, '//button[contains(text(),"Check-in")]')
             if self.node.find(By.XPATH, '//span[contains(text(),"Check-in")]/..//span[contains(text(),"✓")]'):
@@ -88,13 +91,17 @@ class Auto:
         else:
             return False
 
-    def task_post_feeds(self):
+    def task_post_feeds(self) -> bool|None:
         current_dir = os.path.dirname(os.path.abspath(__file__))   # thư mục chứa index.py
         picture_path = os.path.join(current_dir, "picture.png")
+        if not os.path.exists(picture_path):
+            self.node.log("❌ Không tìm thấy file:", picture_path)
+            return False
 
-        if self.node.find(By.XPATH, '(//span[contains(normalize-space(.),"tweet on your Feeds")]/../..)[not(contains(@class,"pointer-events-none"))]'):
+        if self.node.find(By.XPATH, '(//span[contains(normalize-space(.),"tweet on your Feeds")]/../..)[not(contains(@class,"pointer-events-none"))]', timeout=15):
             # page 2
             self.node.new_tab(f'{PROJECT_URL}/profile')
+            message = 'usbgameretro.com - Vao day choi game tuoi tho nhe'
             input_picture = self.node.find(By.XPATH, '//button[contains(text(),"Post")]/..//input[@type="file"]')
             try:
                 input_picture.send_keys(picture_path)
@@ -102,7 +109,6 @@ class Auto:
                 return
                 print(e)
             
-            message = 'usbgameretro.com - Vao day choi game tuoi tho nhe'
             self.node.find_and_input(By.XPATH, '//textarea', message, delay=0)
             self.node.find_and_click(By.XPATH, '//button[contains(text(),"Post") and not(@disabled)]')
             self.node.close_tab()
@@ -114,6 +120,77 @@ class Auto:
                 self.node.log(f'✅ Task post feed thành công')
                 return True
 
+    def task_post_guild(self):
+        current_dir = os.path.dirname(os.path.abspath(__file__))   # thư mục chứa index.py
+        picture_path = os.path.join(current_dir, "picture.png")
+        if not os.path.exists(picture_path):
+            self.node.log("❌ Không tìm thấy file:", picture_path)
+            return False
+        if self.node.find(By.XPATH, '(//span[contains(normalize-space(.),"tweet in your Guild")]/../..)[not(contains(@class,"pointer-events-none"))]', timeout=15):
+            # page 2
+            self.node.new_tab(f'{PROJECT_URL}/lp-guild')
+            if self.node.find_and_click(By.XPATH, '//button//div[contains(normalize-space(.),"My Guild")]', timeout=10):
+                pass
+            else:
+                number_guilds = self.node.finds(By.XPATH, '//tr')
+                for i in range(2,len(number_guilds)):
+                    el_member_guild = self.node.find(By.XPATH, f'((//tr)[{i}]//td)[last() - 1]')
+                    name_guild = self.node.get_text(By.XPATH, f'((//tr)[{i}]//td)[3]')
+                    type_guild = self.node.get_text(By.XPATH, f'((//tr)[{i}]//td)[5]')
+                    if type_guild and type_guild.lower() != "public":
+                        self.node.log(f'⚠️ Bỏ qua {name_guild} vì type {type_guild}')
+                        continue
+                    text_member = el_member_guild.text
+                    if not text_member:
+                        self.node.log(f"❌ Không tìm thấy dữ liệu thành viên trong hàng {name_guild}")
+                        continue
+
+                    text_member_parts = text_member.split('/')
+                    if len(text_member_parts) != 2:
+                        self.node.log("❌ Không đúng định dạng dạng số/số.")
+                        continue
+                    try:
+                        clean_parts = [x.strip().replace(",", "").replace(".", "") for x in text_member_parts]
+                        if int(clean_parts[0]) < int(clean_parts[1]):
+                            self.node.scroll_to_element(el_member_guild)
+                            if not self.node.click(el_member_guild):
+                                self.node.log(f'❌ Không thể di chuyển đến guild hàng {name_guild}')
+                                continue
+                            self.node.find_and_click(By.XPATH, '//span[contains(text(), "Join Guild")]')
+                            self.node.find_and_click(By.XPATH, '//button[contains(text(),"Confirm")]')
+                            
+                            if self.node.find(By.XPATH, '//button[contains(normalize-space(.),"Leave Guild")]'):
+                                self.node.log(f'✅ Join Guild thành công')
+                                break
+                            else:
+                                self.node.log(f'❌ Join Guild {name_guild} không thành công')
+                                return
+                        else:
+                            self.node.log(f'⚠️ Join Guild {name_guild} đã đạt giới hạn')
+                            continue
+                    except Exception as e:
+                        self.node.log(f'❌ Không thể convert sang int: {e}')
+                        continue
+            # page 2 post
+            message = 'usbgameretro.com - Vao day choi game tuoi tho nhe'
+            input_picture = self.node.find(By.XPATH, '//button[contains(text(),"Post")]/..//input[@type="file"]')
+            try:
+                input_picture.send_keys(picture_path)
+            except Exception as e:
+                self.node.log(f'❌ Khôgn thể gửi hình ảnh: {e}')
+                return
+            self.node.find_and_input(By.XPATH, '//textarea', message, delay=0)
+            self.node.find_and_click(By.XPATH, '//button[contains(text(),"Post") and not(@disabled)]')
+            self.node.close_tab()
+            # page 1 
+            self.node.switch_tab(f'{PROJECT_URL}')
+            self.node.find_and_click(By.XPATH, '(//span[contains(normalize-space(.),"tweet in your Guild")]/../..)[not(contains(@class,"pointer-events-none"))]')
+            self.node.find_and_click(By.XPATH, '//button[contains(text(),"Check")]')
+            if self.node.find(By.XPATH, '//span[contains(normalize-space(.),"tweet in your Guild")]/../..//span[contains(text(),"✓")]'):
+                self.node.log(f'✅ Task post feed thành công')
+                return True
+        else:
+            self.node.log(f'❌ Task post guild bị block')
     def run(self):
         completed = []
         if not self.bybit_auto.run():
@@ -123,12 +200,12 @@ class Auto:
         self.handle_popup_news()
         if not self.login():
             return
-        if not self.check_in():
-            return 
-        else:
+        if self.check_in():
             completed.append('check-in')
         if self.task_post_feeds():
             completed.append('post feed')
+        if self.task_post_guild():
+            completed.append('post guild')
         self.node.snapshot(completed)
 
 if __name__ == '__main__':
