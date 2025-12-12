@@ -85,9 +85,13 @@ class Auto:
         if text == "Check-in":
             self.node.find_and_click(By.XPATH, '//span[contains(text(),"Check-in")]')
             self.node.find_and_click(By.XPATH, '//button[contains(text(),"Check-in")]')
-            if self.node.find(By.XPATH, '//span[contains(text(),"Check-in")]/..//span[contains(text(),"✓")]'):
-                self.node.log('✅ Check-in thành công')
-                return True
+            self.bybit_auto.confirm('Confirm')
+            if self.node.find(By.XPATH, '//button[@disabled and contains(normalize-space(.),"Well done")]'):
+                if self.node.find_and_click(By.XPATH, '(//button[@disabled and contains(normalize-space(.),"Well done")]/../../..//button)[1]'):
+                    self.node.log('✅ Check-in thành công')
+                    return True
+                else:
+                    self.node.reload_tab()
         else:
             return False
 
@@ -102,7 +106,7 @@ class Auto:
             # page 2
             self.node.new_tab(f'{PROJECT_URL}/profile')
             message = 'usbgameretro.com - Vao day choi game tuoi tho nhe'
-            input_picture = self.node.find(By.XPATH, '//button[contains(text(),"Post")]/..//input[@type="file"]')
+            input_picture = self.node.find(By.XPATH, '//button[contains(text(),"Post")]/../..//input[@type="file"]')
             try:
                 input_picture.send_keys(picture_path)
             except Exception as e:
@@ -204,8 +208,8 @@ class Auto:
             completed.append('check-in')
         if self.task_post_feeds():
             completed.append('post feed')
-        if self.task_post_guild():
-            completed.append('post guild')
+        # if self.task_post_guild():
+        #     completed.append('post guild')
         self.node.snapshot(completed)
 
 if __name__ == '__main__':
