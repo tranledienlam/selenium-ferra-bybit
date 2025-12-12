@@ -61,7 +61,8 @@ Trong trường hợp quá trình tải tự động thất bại, tool sẽ m�
 ## 🔧 Yêu cầu ban đầu
 
 - **Bybit**: Nếu không cung cấp seeds trong file data.txt thì cần import thủ công trước khi chạy auto. Mật khẩu phải có ký tự: số, Hoa, thường
-- Dự án có gắn Captcha check-in. Không thể chạy ở chế độ ẩn --headless
+- Task check-in, đã loại bỏ captcha, thay vào đó là check-in có fee SUI (0.008 SUI/check-in)
+- Task post guild đã loại bỏ
 
 ---
 
