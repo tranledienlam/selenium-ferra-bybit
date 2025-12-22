@@ -54,7 +54,7 @@ class Auto:
             for _ in range(2):
                 # chạy lần 2 để kiểm tra trạng thái
                 if self.node.find(By.CSS_SELECTOR, '[src="/images/tokens/sui.png"]'):
-                    if not self.node.find(By.XPATH,'//p[contains(normalize-space(.),"please login to continue!")]', timeout=5):
+                    if not self.node.find(By.XPATH,'//p[contains(normalize-space(.),"please login to continue!")]', timeout=30):
                         self.node.log('✅ Connected thành công')
                         return True
                     else:
@@ -210,6 +210,7 @@ class Auto:
             completed.append('post feed')
         # if self.task_post_guild():
         #     completed.append('post guild')
+        input('Stop...')
         self.node.snapshot(completed)
 
 if __name__ == '__main__':
