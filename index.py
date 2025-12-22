@@ -206,11 +206,10 @@ class Auto:
             return
         if self.check_in():
             completed.append('check-in')
-        if self.task_post_feeds():
-            completed.append('post feed')
+        # if self.task_post_feeds(): # bỏ 22/12/20252025
+        #     completed.append('post feed')
         # if self.task_post_guild():
         #     completed.append('post guild')
-        input('Stop...')
         self.node.snapshot(completed)
 
 if __name__ == '__main__':

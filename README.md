@@ -54,7 +54,7 @@ Trong trường hợp quá trình tải tự động thất bại, tool sẽ m�
 ## 🚀 Chức năng chính
 
 - **Login và làm task**: Auto login và check-in hằng ngày
-- **Nhiệm vụ**: Thực hiện post bài hình ảnh + tin nhắn 
+- ~~**Nhiệm vụ**: Thực hiện post bài hình ảnh + tin nhắn~~ (dự án đã bỏ tính điểm)
 
 ---
 
